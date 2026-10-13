@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamStay - Subscriber Retention & Watch Hours Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 15% 15%, #151b2e 0%, var(--bg) 70%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1380px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 30px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+    }
+
+    .brand-text h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-text p {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .badge-status::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+    }
+
+    .btn-swagger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-swagger:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Main Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    /* Preset Buttons */
+    .presets {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn-preset {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-preset:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      background: rgba(10, 14, 24, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 20px;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+      transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+
+    /* Results Card */
+    .results-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .metric-box {
+      background: rgba(10, 15, 28, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .metric-val {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .badge-tier {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .tier-critical {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .tier-medium {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .tier-low {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .gauge-container {
+      margin: 10px 0;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+      border-radius: 999px;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .action-box {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .action-header {
+      font-size: 12px;
+      font-weight: 700;
+      color: #818cf8;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .action-text {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Tabs & Gallery */
+    .tabs-section {
+      margin-top: 10px;
+    }
+
+    .tabs-header {
+      display: flex;
+      gap: 10px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+    }
+
+    .tab-pane {
+      display: none;
+      text-align: center;
+    }
+
+    .tab-pane.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .plot-img {
+      max-width: 100%;
+      max-height: 520px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Drift Section */
+    .drift-box {
+      margin-top: 24px;
+      padding: 20px;
+      background: rgba(14, 20, 36, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="logo-icon">S</div>
+        <div class="brand-text">
+          <h1>StreamStay</h1>
+          <p>Subscriber Retention & Next-Month Watch Time Forecasting</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="badge-status" id="health-badge">Live API Online</div>
+        <a href="/docs" target="_blank" class="btn-swagger">
+          <span>Swagger API Docs</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="grid">
+      <!-- Input Panel -->
+      <div class="card">
+        <div class="card-title">
+          <span>Subscriber Scoring Studio</span>
+        </div>
+        <div class="card-subtitle">
+          Input subscriber telemetry attributes to predict calibrated churn probability and projected watch hours.
+        </div>
+
+        <!-- Presets -->
+        <div class="presets">
+          <span style="font-size:12px; color:var(--text-muted); align-self:center; font-weight:600;">Presets:</span>
+          <button class="btn-preset" onclick="loadPreset('risk')">Critical Churn Risk</button>
+          <button class="btn-preset" onclick="loadPreset('binge')">Binge Watcher VIP</button>
+          <button class="btn-preset" onclick="loadPreset('casual')">Casual Streamer</button>
+          <button class="btn-preset" onclick="loadPreset('missing')">Missing Values Test</button>
+        </div>
+
+        <form id="prediction-form" onsubmit="handlePredict(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Subscriber ID</label>
+              <input type="text" id="user_id" class="form-control" value="USR_49201" required>
+            </div>
+            <div class="form-group">
+              <label>Plan Type</label>
+              <select id="plan_type" class="form-control">
+                <option value="basic">Basic Tier</option>
+                <option value="standard" selected>Standard Tier</option>
+                <option value="premium">Premium Tier</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tenure (Months)</label>
+              <input type="number" id="tenure_months" class="form-control" value="6" min="1" max="100">
+            </div>
+            <div class="form-group">
+              <label>Avg Weekly Watch (Hours)</label>
+              <input type="number" step="0.1" id="avg_weekly_watch_hours" class="form-control" value="4.2">
+            </div>
+            <div class="form-group">
+              <label>Weekly Sessions</label>
+              <input type="number" step="0.5" id="sessions_per_week" class="form-control" value="2.0">
+            </div>
+            <div class="form-group">
+              <label>Streaming Device</label>
+              <select id="device" class="form-control">
+                <option value="tv">Connected TV</option>
+                <option value="mobile" selected>Mobile Phone</option>
+                <option value="web">Web Browser</option>
+                <option value="tablet">Tablet</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Top Genre</label>
+              <select id="top_genre" class="form-control">
+                <option value="Action" selected>Action</option>
+                <option value="Drama">Drama</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Documentary">Documentary</option>
+                <option value="Romance">Romance</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Payment Failures</label>
+              <input type="number" id="payment_failures" class="form-control" value="2" min="0" max="6">
+            </div>
+            <div class="form-group">
+              <label>Support Tickets</label>
+              <input type="number" step="1" id="support_tickets" class="form-control" value="2" min="0" max="10">
+            </div>
+            <div class="form-group">
+              <label>Days Since Last Login</label>
+              <input type="number" step="1" id="last_login_days_ago" class="form-control" value="21" min="0">
+            </div>
+          </div>
+          <button type="submit" class="btn-submit" id="btn-submit">Compute Dual-Target Predictions</button>
+        </form>
+      </div>
+
+      <!-- Output Panel -->
+      <div class="card">
+        <div class="card-title">
+          <span>Inference & Decision Output</span>
+        </div>
+        <div class="card-subtitle">
+          Real-time predictions generated via shared scikit-learn Pipeline and calibrated LightGBM.
+        </div>
+
+        <div class="results-container">
+          <div class="metric-row">
+            <div class="metric-box">
+              <div class="metric-label">Churn Risk Probability</div>
+              <div class="metric-val" id="res-prob">--%</div>
+              <div class="badge-tier tier-critical" id="res-tier">Awaiting Input</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-label">Predicted Watch Hours</div>
+              <div class="metric-val" id="res-watch">-- hrs</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">Next 30 Days Forecast</div>
+            </div>
+          </div>
+
+          <div class="gauge-container">
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-bottom:4px;">
+              <span>Safe (0%)</span>
+              <span>50% Decision Threshold</span>
+              <span>Critical (100%)</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="res-progress"></div>
+            </div>
+          </div>
+
+          <div class="action-box">
+            <div class="action-header">Prescriptive Retention Action</div>
+            <div class="action-text" id="res-action">
+              Execute scoring to generate automated customer success intervention recommendation.
+            </div>
+          </div>
+
+          <div style="font-size:11px; color:var(--text-muted); line-height:1.4; margin-top:8px;">
+            * Involves Isotonic Probability Calibration to ensure accurate posterior probabilities for business discount incentives.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics & Saved Plots Gallery -->
+    <div class="card tabs-section">
+      <div class="card-title">Model Diagnostics & Research Visualizations</div>
+      <div class="card-subtitle">Inspect saved experimental plots generated during the StreamStay M1-M6 lifecycle.</div>
+
+      <div class="tabs-header">
+        <button class="tab-btn active" onclick="switchTab('calib')">Calibration & Reliability</button>
+        <button class="tab-btn" onclick="switchTab('perm')">Permutation Importance</button>
+        <button class="tab-btn" onclick="switchTab('shap')">SHAP Attribution</button>
+        <button class="tab-btn" onclick="switchTab('clusters')">Viewer Segments (PCA/UMAP)</button>
+        <button class="tab-btn" onclick="switchTab('learning')">Learning Curve</button>
+      </div>
+
+      <div id="tab-calib" class="tab-pane active">
+        <img src="/plots/calibration_curve.png" alt="Calibration Curve" class="plot-img">
+      </div>
+      <div id="tab-perm" class="tab-pane">
+        <img src="/plots/feature_importance.png" alt="Feature Permutation Importance" class="plot-img">
+      </div>
+      <div id="tab-shap" class="tab-pane">
+        <img src="/plots/shap_summary.png" alt="SHAP Summary Plot" class="plot-img">
+      </div>
+      <div id="tab-clusters" class="tab-pane">
+        <img src="/plots/clusters_pca_umap.png" alt="Viewer Clusters & Anomalies" class="plot-img">
+      </div>
+      <div id="tab-learning" class="tab-pane">
+        <img src="/plots/learning_curve.png" alt="Learning Curve" class="plot-img">
+      </div>
+
+      <!-- Drift Trigger Box -->
+      <div class="drift-box">
+        <div>
+          <div style="font-weight:700; font-size:15px; margin-bottom:4px;">Automated Telemetry Drift Auditing (PSI)</div>
+          <div style="font-size:13px; color:var(--text-muted);">
+            Policy: Retrain automatically if Population Stability Index (PSI) > 0.20 or PR-AUC drops by > 5%.
+          </div>
+        </div>
+        <button class="btn-secondary" onclick="runDriftAudit()">Execute Telemetry Drift Check</button>
+      </div>
+      <div id="drift-results" style="display:none; margin-top:16px; padding:16px; background:rgba(0,0,0,0.3); border-radius:10px; font-size:13px;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
+    }
+
+    // Presets
+    const presets = {
+      risk: {
+        user_id: 'USR_AT_RISK',
+        plan_type: 'basic',
+        tenure_months: 3,
+        avg_weekly_watch_hours: 2.5,
+        sessions_per_week: 1.5,
+        device: 'mobile',
+        top_genre: 'Action',
+        payment_failures: 2,
+        support_tickets: 3,
+        last_login_days_ago: 24
+      },
+      binge: {
+        user_id: 'USR_BINGE_VIP',
+        plan_type: 'premium',
+        tenure_months: 36,
+        avg_weekly_watch_hours: 32.0,
+        sessions_per_week: 9.0,
+        device: 'tv',
+        top_genre: 'Drama',
+        payment_failures: 0,
+        support_tickets: 0,
+        last_login_days_ago: 1
+      },
+      casual: {
+        user_id: 'USR_CASUAL',
+        plan_type: 'standard',
+        tenure_months: 14,
+        avg_weekly_watch_hours: 8.5,
+        sessions_per_week: 3.0,
+        device: 'web',
+        top_genre: 'Comedy',
+        payment_failures: 0,
+        support_tickets: 0,
+        last_login_days_ago: 3
+      },
+      missing: {
+        user_id: 'USR_NULL_TEST',
+        plan_type: 'basic',
+        tenure_months: 2,
+        avg_weekly_watch_hours: '',
+        sessions_per_week: '',
+        device: 'mobile',
+        top_genre: 'Sci-Fi',
+        payment_failures: 1,
+        support_tickets: '',
+        last_login_days_ago: 18
+      }
+    };
+
+    function loadPreset(key) {
+      const p = presets[key];
+      for (const [k, v] of Object.entries(p)) {
+        const el = document.getElementById(k);
+        if (el) el.value = v;
+      }
+      handlePredict(new Event('submit'));
+    }
+
+    async function handlePredict(e) {
+      if (e) e.preventDefault();
+      const btn = document.getElementById('btn-submit');
+      btn.innerText = 'Calculating Inference...';
+
+      const payload = {
+        user_id: document.getElementById('user_id').value,
+        plan_type: document.getElementById('plan_type').value,
+        tenure_months: parseInt(document.getElementById('tenure_months').value) || 1,
+        avg_weekly_watch_hours: document.getElementById('avg_weekly_watch_hours').value === '' ? null : parseFloat(document.getElementById('avg_weekly_watch_hours').value),
+        sessions_per_week: document.getElementById('sessions_per_week').value === '' ? null : parseFloat(document.getElementById('sessions_per_week').value),
+        device: document.getElementById('device').value,
+        top_genre: document.getElementById('top_genre').value,
+        payment_failures: parseInt(document.getElementById('payment_failures').value) || 0,
+        support_tickets: document.getElementById('support_tickets').value === '' ? null : parseFloat(document.getElementById('support_tickets').value),
+        last_login_days_ago: parseFloat(document.getElementById('last_login_days_ago').value) || 0.0
+      };
+
+      try {
+        const res = await fetch('/predict', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        // Update UI
+        const probPct = (data.churn_probability * 100).toFixed(1);
+        document.getElementById('res-prob').innerText = probPct + '%';
+        document.getElementById('res-watch').innerText = data.predicted_next_month_watch_hours.toFixed(1) + ' hrs';
+        document.getElementById('res-progress').style.width = probPct + '%';
+        document.getElementById('res-action').innerText = data.retention_action;
+
+        const tierEl = document.getElementById('res-tier');
+        tierEl.innerText = data.risk_tier;
+        tierEl.className = 'badge-tier';
+        if (data.churn_probability >= 0.65) tierEl.classList.add('tier-critical');
+        else if (data.churn_probability >= 0.35) tierEl.classList.add('tier-medium');
+        else tierEl.classList.add('tier-low');
+      } catch (err) {
+        alert('Prediction error: ' + err);
+      } finally {
+        btn.innerText = 'Compute Dual-Target Predictions';
+      }
+    }
+
+    async function runDriftAudit() {
+      const box = document.getElementById('drift-results');
+      box.style.display = 'block';
+      box.innerHTML = 'Evaluating Population Stability Index across reference data...';
+
+      try {
+        const payload = {
+          batch_records: [
+            presets.risk,
+            presets.binge,
+            presets.casual
+          ],
+          baseline_pr_auc: 0.82
+        };
+        const res = await fetch('/monitor/drift', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const rep = data.drift_report;
+        const dec = data.retraining_decision;
+
+        box.innerHTML = `
+          <strong>Drift Status:</strong> <span style="color:#10b981;">${rep.overall_status}</span> |
+          <strong>Max PSI:</strong> ${rep.max_psi} (${rep.highest_drift_feature}) |
+          <strong>Trigger Retraining:</strong> <span style="color:${dec.trigger_retraining ? '#ef4444' : '#10b981'}; font-weight:700;">${dec.trigger_retraining}</span>
+          <br><span style="color:#94a3b8; font-size:12px;">${dec.rationale}</span>
+        `;
+      } catch (e) {
+        box.innerHTML = 'Drift check error: ' + e;
+      }
+    }
+
+    // Auto-predict on initial load
+    window.onload = () => handlePredict(null);
+  </script>
+</body>
+</html>

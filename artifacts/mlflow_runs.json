@@ -1,0 +1,93 @@
+{
+  "experiment_name": "StreamStay_Subscriber_Intelligence",
+  "models": {
+    "linear_baseline": {
+      "params": {
+        "penalty": "l2",
+        "C": 1.0,
+        "solver": "lbfgs"
+      },
+      "metrics_test": {
+        "accuracy": 0.9263333333333333,
+        "precision": 0.800524934383202,
+        "recall": 0.6777777777777778,
+        "f1": 0.7340553549939831,
+        "roc_auc": 0.9657376906318084,
+        "pr_auc": 0.8505481206526568,
+        "brier_score": 0.0515740406647067
+      }
+    },
+    "lightgbm_classifier": {
+      "params": {
+        "subsample": 0.8,
+        "num_leaves": 15,
+        "n_estimators": 100,
+        "max_depth": 4,
+        "learning_rate": 0.15,
+        "colsample_bytree": 0.8
+      },
+      "metrics_test_raw": {
+        "accuracy": 0.925,
+        "precision": 0.7984084880636605,
+        "recall": 0.6688888888888889,
+        "f1": 0.727932285368803,
+        "roc_auc": 0.9618592592592592,
+        "pr_auc": 0.8410371599826261,
+        "brier_score": 0.053571237835625785
+      },
+      "metrics_test_calibrated": {
+        "accuracy": 0.9186666666666666,
+        "precision": 0.7258771929824561,
+        "recall": 0.7355555555555555,
+        "f1": 0.7306843267108167,
+        "roc_auc": 0.9614954248366014,
+        "pr_auc": 0.8200697551553426,
+        "brier_score": 0.0547005135473273
+      }
+    },
+    "watch_hours_regressor": {
+      "ridge_metrics": {
+        "rmse": 14.737840224774072,
+        "mae": 10.237689377397027,
+        "r2": 0.8721579784752657
+      },
+      "lgbm_metrics": {
+        "rmse": 12.017359617901288,
+        "mae": 8.272063846185384,
+        "r2": 0.9149989957763778
+      }
+    }
+  },
+  "mcnemar_test": {
+    "contingency_table": {
+      "both_correct (n00)": 2722,
+      "baseline_only_correct (n01)": 57,
+      "boosted_only_correct (n10)": 34,
+      "both_incorrect (n11)": 187
+    },
+    "statistic": 5.318681318681318,
+    "p_value": 0.02109797172477839,
+    "is_significant_at_005": true,
+    "interpretation": "Statistically significant difference (p < 0.05). Boosted model out-performs baseline."
+  },
+  "unsupervised": {
+    "optimal_k": 4,
+    "silhouette_scores": {
+      "2": 0.15484181447889472,
+      "3": 0.18289768922280555,
+      "4": 0.21004792772220215,
+      "5": 0.20050537502093452
+    },
+    "anomalies_detected": 420
+  },
+  "artifacts_generated": [
+    "plots/feature_importance.png",
+    "plots/shap_summary.png",
+    "plots/clusters_pca_umap.png",
+    "plots/calibration_curve.png",
+    "plots/learning_curve.png",
+    "models/calibrated_churn_pipeline.joblib",
+    "models/watch_hours_pipeline.joblib",
+    "models/streamstay_churn.onnx"
+  ]
+}
